@@ -118,7 +118,7 @@ export default function AIStudio() {
             src="/logos/drivepass-black.png"
             alt="Drivepass"
             style={{
-              height: 36,
+              height: 64,
               width: "auto",
               objectFit: "contain",
               display: "block",
