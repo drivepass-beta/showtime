@@ -114,7 +114,16 @@ export default function AIStudio() {
       {/* HEADER */}
       <div style={{ borderBottom: "1px solid #e5e7eb", padding: "16px 32px", background: "#fff" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <img src="/DP_logo_Black.png" onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/DP_logo_White.png")} alt="drivepass" style={{ height: 32 }} />
+          <img
+            src="/logos/drivepass-black.png"
+            alt="Drivepass"
+            style={{
+              height: 36,
+              width: "auto",
+              objectFit: "contain",
+              display: "block",
+            }}
+          />
           <div style={{ fontSize: 20, fontWeight: 700 }}>AI Content Studio</div>
           <a
             href="https://saas.navori.com"
@@ -139,34 +148,39 @@ export default function AIStudio() {
       {/* QUICK STARTS */}
       <div style={{ padding: "14px 32px", borderBottom: "1px solid #f3f4f6", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, color: "#6b7280" }}>QUICK STARTS:</span>
-        {QUICK_STARTS.map((qs, idx) => (
-          <button
-            key={qs.label}
-            onMouseEnter={() => setHoveredQuickStart(idx)}
-            onMouseLeave={() => setHoveredQuickStart(null)}
-            onClick={() => setPrompt(qs.prompt)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "8px 14px",
-              border: "1px solid #e5e7eb",
-              borderRadius: 999,
-              background: "#fff",
-              cursor: "pointer",
-              transition: "border-color 0.15s ease",
-            }}
-          >
-            <img
-              src={`/icons/${qs.iconBase}-${hoveredQuickStart === idx ? "blue" : "slate"}.svg`}
-              alt={qs.label}
-              style={{ width: 22, height: 22, objectFit: "contain" }}
-            />
-            <span style={{ fontSize: 14, fontWeight: 500, color: "#374151" }}>
-              {qs.label}
-            </span>
-          </button>
-        ))}
+        {QUICK_STARTS.map((qs, idx) => {
+          const defaultColour = idx % 2 === 0 ? "blue" : "slate";
+          const hoverColour   = idx % 2 === 0 ? "slate" : "blue";
+          const colour = hoveredQuickStart === idx ? hoverColour : defaultColour;
+          return (
+            <button
+              key={qs.label}
+              onMouseEnter={() => setHoveredQuickStart(idx)}
+              onMouseLeave={() => setHoveredQuickStart(null)}
+              onClick={() => setPrompt(qs.prompt)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "8px 14px",
+                border: "1px solid #e5e7eb",
+                borderRadius: 999,
+                background: "#fff",
+                cursor: "pointer",
+                transition: "border-color 0.15s ease",
+              }}
+            >
+              <img
+                src={`/icons/${qs.iconBase}-${colour}.svg`}
+                alt={qs.label}
+                style={{ width: 22, height: 22, objectFit: "contain" }}
+              />
+              <span style={{ fontSize: 14, fontWeight: 500, color: "#374151" }}>
+                {qs.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* MAIN */}
