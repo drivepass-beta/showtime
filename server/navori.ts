@@ -513,6 +513,14 @@ export async function navoriLogin(login: string, password: string): Promise<{ su
     return { success: false, error: "Invalid response from Navori API" };
   }
 
+  console.log("[NAVORI/AUTH] full token response:",
+    JSON.stringify({
+      ...data,
+      Token: data.Token
+        ? `[${data.Token.length} chars redacted]`
+        : null
+    }, null, 2));
+
   if (data.Status === "SUCCESS" && data.Token) {
     return { success: true, token: data.Token };
   }
@@ -849,6 +857,8 @@ export async function navoriUploadMedia(
     "req=", JSON.stringify(redactedBody),
     "resp=", JSON.stringify(uploadData),
   );
+  console.log("[NAVORI/UPLOAD-V2] FULL RESPONSE BODY:",
+    JSON.stringify(uploadData, null, 2));
 
   if (!uploadResp.ok || !uploadData || uploadData.Status !== "SUCCESS" || uploadData.Offset !== fileSize) {
     return {
