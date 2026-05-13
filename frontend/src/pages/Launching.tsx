@@ -73,7 +73,6 @@ export default function Launching() {
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginBottom: 40 }}>
         <img src="/logos/drivepass-white.png" alt="drivepass" style={{ width: 200 }} />
         <div style={{ fontSize: 28, fontWeight: 700, color: "#fff", marginTop: 8 }}>Welcome to Showtime</div>
-        <div style={{ fontSize: 14, color: "#1A91E2" }}>by drivepass©</div>
         <div style={{ fontSize: 16, color: "#9CA3AF", marginTop: 8 }}>What would you like to do today?</div>
       </div>
 
