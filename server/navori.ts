@@ -868,58 +868,66 @@ export async function navoriUploadMedia(
     };
   }
 
-  const filePath = uploadData.FilePath;
+  const mediaPath: string | undefined = uploadData.MediaInfo?.Path;
   const nameForNavori = (
     (displayName && displayName.length <= originalFilename.length)
       ? displayName
       : originalFilename
   ).substring(0, 50);
 
-  const setMediasUrl = `${NAVORI_QL_URL}SetMedias`;
-  const setMediasBody = {
-    MediaList: [
-      {
-        GroupId: groupId,
-        MediaPath: filePath,
-        Name: nameForNavori,
-      },
-    ],
-  };
+  if (!mediaPath) {
+    console.error(
+      "[NAVORI/SETMEDIAS] aborting: uploadData.MediaInfo?.Path missing — cannot register media without it.",
+      "uploadData keys=", Object.keys(uploadData || {}),
+      "MediaInfo=", JSON.stringify(uploadData?.MediaInfo),
+    );
+  } else {
+    const setMediasUrl = `${NAVORI_QL_URL}SetMedias`;
+    const setMediasBody = {
+      MediaList: [
+        {
+          GroupId: groupId,
+          MediaPath: mediaPath,
+          Name: nameForNavori,
+        },
+      ],
+    };
 
-  let setMediasResponseBody: any = null;
-  try {
-    const setMediasResp = await fetch(setMediasUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        "Accept": "application/json",
-        "X-Requested-With": "XMLHttpRequest",
-        "Token": token,
-      },
-      body: JSON.stringify(setMediasBody),
-    });
+    let setMediasResponseBody: any = null;
     try {
-      setMediasResponseBody = await setMediasResp.json();
-    } catch {
-      setMediasResponseBody = null;
+      const setMediasResp = await fetch(setMediasUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Accept": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+          "Token": token,
+        },
+        body: JSON.stringify(setMediasBody),
+      });
+      try {
+        setMediasResponseBody = await setMediasResp.json();
+      } catch {
+        setMediasResponseBody = null;
+      }
+      console.log("[NAVORI/SETMEDIAS] req=", JSON.stringify(setMediasBody),
+                  "resp=", JSON.stringify(setMediasResponseBody));
+      if (!setMediasResp.ok || !setMediasResponseBody || setMediasResponseBody.Status !== "SUCCESS") {
+        console.warn("[NAVORI/SETMEDIAS] move-into-group failed — upload succeeded, returning success anyway");
+      }
+    } catch (err: any) {
+      console.warn("[NAVORI/SETMEDIAS] threw:", err?.message || err, "— upload succeeded, returning success anyway");
     }
-    console.log("[NAVORI/SETMEDIAS] req=", JSON.stringify(setMediasBody),
-                "resp=", JSON.stringify(setMediasResponseBody));
-    if (!setMediasResp.ok || !setMediasResponseBody || setMediasResponseBody.Status !== "SUCCESS") {
-      console.warn("[NAVORI/SETMEDIAS] move-into-group failed — upload succeeded, returning success anyway");
-    }
-  } catch (err: any) {
-    console.warn("[NAVORI/SETMEDIAS] threw:", err?.message || err, "— upload succeeded, returning success anyway");
   }
 
   return {
     success: true,
     navoriStatus: uploadData.Status,
     mediaInfo: {
-      FileName: uploadData.FileName,
-      Path: filePath,
-      URL: "",
-      Length: fileSize,
+      FileName: uploadData.MediaInfo?.Name || uploadData.FileName,
+      Path: mediaPath ?? "",
+      URL: uploadData.MediaInfo?.URL ?? "",
+      Length: uploadData.MediaInfo?.Length ?? fileSize,
     },
   };
 }
