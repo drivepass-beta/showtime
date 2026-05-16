@@ -868,7 +868,9 @@ export async function navoriUploadMedia(
     };
   }
 
-  const mediaPath: string | undefined = uploadData.MediaInfo?.Path;
+  const mediaPath: string | undefined = uploadData.FileName
+    ? `0/${uploadData.FileName}`
+    : uploadData.MediaInfo?.Path;
   const nameForNavori = (
     (displayName && displayName.length <= originalFilename.length)
       ? displayName
