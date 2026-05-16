@@ -868,16 +868,27 @@ export async function navoriUploadMedia(
     };
   }
 
-  const mediaInfo = uploadData.MediaInfo || {};
-  const propsUrl = `${NAVORI_QL_URL}SetContentProperties`;
-  const propsBody = {
-    Path: mediaInfo.Path,
-    Name: displayName || originalFilename,
-    Duration: 7000,
+  const filePath = uploadData.FilePath;
+  const nameForNavori = (
+    (displayName && displayName.length <= originalFilename.length)
+      ? displayName
+      : originalFilename
+  ).substring(0, 50);
+
+  const setMediasUrl = `${NAVORI_QL_URL}SetMedias`;
+  const setMediasBody = {
+    MediaList: [
+      {
+        GroupId: groupId,
+        MediaPath: filePath,
+        Name: nameForNavori,
+      },
+    ],
   };
 
+  let setMediasResponseBody: any = null;
   try {
-    const propsResp = await fetch(propsUrl, {
+    const setMediasResp = await fetch(setMediasUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8",
@@ -885,36 +896,30 @@ export async function navoriUploadMedia(
         "X-Requested-With": "XMLHttpRequest",
         "Token": token,
       },
-      body: JSON.stringify(propsBody),
+      body: JSON.stringify(setMediasBody),
     });
-    let propsData: any;
     try {
-      propsData = await propsResp.json();
+      setMediasResponseBody = await setMediasResp.json();
     } catch {
-      propsData = null;
+      setMediasResponseBody = null;
     }
-    console.log(
-      "[NAVORI/SETPROPS] response:",
-      "url=", propsUrl,
-      "status=", propsResp.status, propsResp.statusText,
-      "req=", JSON.stringify(propsBody),
-      "resp=", JSON.stringify(propsData),
-    );
-    if (!propsResp.ok || !propsData || propsData.Status !== "SUCCESS") {
-      console.warn("[NAVORI/SETPROPS] registration failed — upload succeeded, returning success anyway");
+    console.log("[NAVORI/SETMEDIAS] req=", JSON.stringify(setMediasBody),
+                "resp=", JSON.stringify(setMediasResponseBody));
+    if (!setMediasResp.ok || !setMediasResponseBody || setMediasResponseBody.Status !== "SUCCESS") {
+      console.warn("[NAVORI/SETMEDIAS] move-into-group failed — upload succeeded, returning success anyway");
     }
   } catch (err: any) {
-    console.warn("[NAVORI/SETPROPS] threw:", err?.message || err, "— upload succeeded, returning success anyway");
+    console.warn("[NAVORI/SETMEDIAS] threw:", err?.message || err, "— upload succeeded, returning success anyway");
   }
 
   return {
     success: true,
     navoriStatus: uploadData.Status,
     mediaInfo: {
-      FileName: mediaInfo.FileName || uploadData.FileName,
-      Path: mediaInfo.Path,
-      URL: mediaInfo.URL,
-      Length: mediaInfo.Length ?? fileSize,
+      FileName: uploadData.FileName,
+      Path: filePath,
+      URL: "",
+      Length: fileSize,
     },
   };
 }
